@@ -184,6 +184,90 @@
     gap: 2.5rem;
 }
 
+.amazonWrapper {
+    display: flex;
+    justify-content: center;
+    max-width: 1140px;
+    margin: 0 auto;
+    gap: 2rem;
+}
+
+.leftWrapper {
+    width: 50%;
+    line-height: 25px;
+}
+
+.amzButton {
+    color: #000;
+    background-color:#ffd400;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 14px;
+    align-items: center;
+    justify-content: center;
+    transition: 200ms all ease;
+
+}
+
+.submitBtn {
+    color: #000;
+    background-color:#ffd400;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 14px;
+    align-items: center;
+    justify-content: center;
+    transition: 200ms all ease;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.submitBtn:hover {
+    border-radius: 16px;
+    background-color: #f1bb16;
+}
+
+.amzButton:hover {
+    border-radius: 16px;
+    background-color: #f1bb16;
+}
+
+.hightlighted {
+    color: red;
+}
+
+.please {
+    color: #474747;
+    font-size: 12px;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 12px;
+    padding-top: 0.8rem;
+}
+
+.inputSubmit {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid grey;
+}
+
+.secondP {
+    margin-top: 1.5rem;
+}
+
+
 @media(max-width: 768px) {
     .layout {
         flex-direction: column;

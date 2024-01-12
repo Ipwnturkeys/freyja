@@ -1,6 +1,26 @@
 "use client";
 import styles from './begin.module.css';
 import React, { useEffect, useState } from 'react';
+import qs from 'qs';
+
+const query = qs.stringify({
+  populate: {
+    'FormBackground': '*', // Top-level image field
+    'MainLogo': '*', // Another top-level image field
+    'ContentCard': {
+      populate: '*',
+    },
+    'ContentCard2': {
+      populate: '*',
+    },
+    'ContentCard3': {
+      populate: '*',
+    },
+    'Question': '*',
+  },
+}, {
+  encodeValuesOnly: true,
+});
 
 type FormPageData = {
     data: {
@@ -12,6 +32,10 @@ type FormPageData = {
         LeftContentText: any[]; // Adjust this based on your content structure
         FormBackground: ImageData;
         MainLogo: ImageData;
+        ContentCard: ContentCard // Adjust this based on your content structure
+        ContentCard2: ContentCard // Adjust this based on your content structure
+        ContentCard3: ContentCard // Adjust this based on your content structure
+        Question: any[]
       };
     }[];
   };
@@ -37,6 +61,19 @@ interface ListItem {
     children: TextNode[]; // Assuming list items only have text nodes for simplicity
   }
 
+interface ContentCard {
+  Content: string;
+  Title: string;
+  Image: {
+    data: {
+      attributes: {
+        url: string;
+      };
+    }
+  };
+  id?: number;
+}
+
 const fetchHomepage = async (): Promise<FormPageData> => {
     const reqOptions = {
       headers: {
@@ -44,13 +81,14 @@ const fetchHomepage = async (): Promise<FormPageData> => {
       }
     };
   
-    const response = await fetch('http://127.0.0.1:1337/api/formpages?populate=*', reqOptions);
+    const response = await fetch(`http://127.0.0.1:1337/api/formpages?${query}`, reqOptions);
     const data: FormPageData = await response.json();
   
     return data;
 };
 
 const Begin: React.FC = () => {
+  
 
     const [formData, setFormData] = useState({
         email: '',
@@ -69,8 +107,19 @@ const Begin: React.FC = () => {
     
       const handleSubmit = (e: any) => {
         e.preventDefault();
-        // Handle the form submission, e.g., send data to an API or server
-        console.log(formData);
+      
+        // Check if required fields are filled
+        if (formData.email && formData.firstName && formData.lastName) {
+          // Assuming you have some API call or logic to handle the submitted data
+          console.log(formData);
+      
+          // Navigate to '/purchased'
+          window.location.href = '/purchased';
+        } else {
+          // Handle the case where some required fields are missing
+          // You can show an error message or highlight the missing fields
+          console.log('Please fill all the required fields');
+        }
       };
 
     const [formpage, setFormpage] = useState<FormPageData | null>(null);
@@ -106,7 +155,7 @@ const Begin: React.FC = () => {
                     {formpage?.data[0]?.attributes?.Headline}
                 </div>
             </div>
-            <div className={styles.secondaryWrapper} style={{backgroundImage: `url(${fullbackgroundImageUrl})`}}>
+            <div className={styles.secondaryWrapper} style={{backgroundImage: `url(${fullbackgroundImageUrl}`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat'}}>
                 <div className={styles.layout}>
                     <div className={styles.leftSideTextContainer}>
                         {formpage?.data[0]?.attributes?.LeftContentText?.map((text: ListItem, index: number) => (
@@ -173,6 +222,64 @@ const Begin: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className={styles.thirdWrapper}>
+                {formpage?.data[0]?.attributes?.ContentCard && (
+                  <div className={styles.cardWrapper}>
+                    <div className={styles.cardHeader}>
+                      {formpage?.data[0]?.attributes?.ContentCard.Title}
+                    </div>
+                    <div className={styles.cardImage}>
+                      <img src={`http://127.0.0.1:1337${formpage?.data[0]?.attributes?.ContentCard.Image.data.attributes.url}`} alt="Card Image" />
+                    </div>
+                    <div className={styles.cardContent}>
+                      {formpage?.data[0]?.attributes?.ContentCard.Content}
+                    </div>
+                  </div>
+                )}
+                {formpage?.data[0]?.attributes?.ContentCard2 && (
+                  <div className={styles.cardWrapper}>
+                    <div className={styles.cardHeader}>
+                      {formpage?.data[0]?.attributes?.ContentCard2.Title}
+                    </div>
+                    <div className={styles.cardImage}>
+                      <img src={`http://127.0.0.1:1337${formpage?.data[0]?.attributes?.ContentCard2.Image.data.attributes.url}`} alt="Card Image" />
+                    </div>
+                    <div className={styles.cardContent}>
+                      {formpage?.data[0]?.attributes?.ContentCard2.Content}
+                    </div>
+                  </div>
+                )}
+                {formpage?.data[0]?.attributes?.ContentCard3 && (
+                  <div className={styles.cardWrapper}>
+                    <div className={styles.cardHeader}>
+                      {formpage?.data[0]?.attributes?.ContentCard3.Title}
+                    </div>
+                    <div className={styles.cardImage}>
+                      <img src={`http://127.0.0.1:1337${formpage?.data[0]?.attributes?.ContentCard3.Image.data.attributes.url}`} alt="Card Image" />
+                    </div>
+                    <div className={styles.cardContent}>
+                      {formpage?.data[0]?.attributes?.ContentCard3.Content}
+                    </div>
+                  </div>
+                )}
+            </div>
+            <div className={styles.fourthWrapper}>
+              <h2>FREQUENTLY ASKED QUESTIONS</h2>
+              <div className={styles.questionWrapper}>
+                {
+                  formpage?.data[0]?.attributes?.Question?.map((question: any, index: number) => (
+                    <div key={index} className={styles.question}>
+                      <h3 className={styles.questionHeader}>
+                        {question.Title}
+                      </h3>
+                      <div className={styles.questionContent}>
+                        {question.Content[0].children[0].text}
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
             </div>
         </div>
     );

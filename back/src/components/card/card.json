@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_card_cards",
+  "info": {
+    "displayName": "Card",
+    "icon": "alien"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Content": {
+      "type": "richtext"
+    },
+    "Image": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}
