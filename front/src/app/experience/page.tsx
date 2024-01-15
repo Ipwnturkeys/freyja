@@ -1,5 +1,5 @@
 "use client";
-import styles from './purchased.module.css';
+import styles from './experience.module.css';
 import React, { useEffect, useState } from 'react';
 import qs from 'qs';
 import { useRouter } from 'next/navigation';
@@ -7,10 +7,9 @@ import { useRouter } from 'next/navigation';
 const query = qs.stringify({
   populate: {
     'Title': '*', // Top-level image field
-    'Logo': '*', // Another top-level image field
-    'ProductList': {
-      populate: '*',
-    }
+    'Subtitle': '*', // Another top-level image field
+    'Questions': '*',
+    'Logo': '*',
   },
 }, {
   encodeValuesOnly: true,
@@ -21,12 +20,14 @@ type PurchasedPageData = {
       id: number,
       attributes: {
         Title: string;
+        Subtitle: string;
         FormHeader: string;
         FormBottomContent: string;
         LeftContentText: any[]; // Adjust this based on your content structure
         FormBackground: ImageData;
         Logo: ImageData;
         ProductList: any[];
+        Questions: any[];
       };
     }[];
   };
@@ -40,31 +41,6 @@ type ImageData = {
   } | null;
 };
 
-interface TextNode {
-    type: 'text';
-    text: string;
-    bold?: boolean; // Optional property for bold text
-  }
-
-interface ListItem {
-    bold?: boolean; // Optional property for bold text
-    type: 'list-item';
-    children: TextNode[]; // Assuming list items only have text nodes for simplicity
-  }
-
-interface ContentCard {
-  Content: string;
-  Title: string;
-  Image: {
-    data: {
-      attributes: {
-        url: string;
-      };
-    }
-  };
-  id?: number;
-}
-
 const fetchHomepage = async (): Promise<PurchasedPageData> => {
     const reqOptions = {
       headers: {
@@ -72,33 +48,41 @@ const fetchHomepage = async (): Promise<PurchasedPageData> => {
       }
     };
   
-    const response = await fetch(`http://127.0.0.1:1337/api/product-lists?${query}`, reqOptions);
+    const response = await fetch(`http://127.0.0.1:1337/api/experiences?${query}`, reqOptions);
     const data: PurchasedPageData = await response.json();
   
     return data;
 };
 
-const Begin: React.FC = () => {
+const Experience: React.FC = () => {
 
-      // Inside your component
-    const [selectedProduct, setSelectedProduct] = useState('');
+    const [rating, setRating] = useState('1');
 
-    const handleProductChange = (e: any) => {
-      setSelectedProduct(e.target.value);
-    };
+    const handleRatingChange = (e: any) => {
+        setRating(e.target.value);
+      };
+
 
     // Inside your component
 const router = useRouter();
 
 const handleNextClick = () => {
-  const existingData = localStorage.getItem('formData');
-  const formData = existingData ? JSON.parse(existingData) : {};
-  
-  formData.purchasedProduct = selectedProduct;
+    // Retrieve existing data from localStorage
+    const existingData = localStorage.getItem('formData');
+    const formData = existingData ? JSON.parse(existingData) : {};
+    
+    // Update formData with the selected rating
+    formData.rating = rating;
 
-  localStorage.setItem('formData', JSON.stringify(formData));
+    // Save updated formData back to localStorage
+    localStorage.setItem('formData', JSON.stringify(formData));
 
-  router.push('/amazon'); // Replace with your next page's path
+    // Redirect based on rating
+    if (['5', '4'].includes(rating)) {
+        router.push('/highRatingPage'); // Path for high ratings
+    } else {
+        router.push('/lowRatingPage'); // Path for low ratings
+    }
 };
 
     const [formpage, setFormpage] = useState<PurchasedPageData | null>(null);
@@ -112,6 +96,7 @@ const handleNextClick = () => {
           console.error('Error fetching homepage data:', error);
         });
     }, []);
+    
   
     console.log(formpage);
 
@@ -128,20 +113,30 @@ const handleNextClick = () => {
                 <h1 className={styles.mainTitle}>{
                     formpage?.data[0]?.attributes?.Title
                 }</h1>
-                <div className={styles.optionsContainer}>
-                    <div className={styles.optionHeadline}>Please Select the Product You Bought <span className={styles.hightlighted}>*</span></div>
+                <p className={styles.subTitle}>{
+                    formpage?.data[0]?.attributes?.Subtitle
+                }</p>
+                <div className={styles.textContent}>
+                    {
+                        formpage?.data[0]?.attributes?.Questions?.map((text, index) => (
+                            <p key={index}>{text.children[0].text}</p>
+                        ))
+                    }
                 </div>
-                <select className={styles.select} onChange={handleProductChange}>
-  {
-    formpage?.data[0]?.attributes?.ProductList.map((item, index) => (
-      <option key={index} value={item.children[0].text}>{item.children[0].text}</option>
-    ))
-  }
-</select>
+                <div>
+                    <p>Rate Experience</p>
+                    <select onChange={handleRatingChange} value={rating} className={styles.select}>
+                    <option value="5">5. Love it</option>
+                    <option value="4">4. Like it</option>
+                    <option value="3">3. It's OK</option>
+                    <option value="2">2. Needs improvement</option>
+                    <option value="1">1. Don't like it</option>
+                </select>
+                </div>
               <button onClick={handleNextClick} className={styles.nextButton}>NEXT</button>
             </div>
         </div>
     );
 }
 
-export default Begin;
+export default Experience;

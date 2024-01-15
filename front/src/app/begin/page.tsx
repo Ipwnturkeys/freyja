@@ -2,6 +2,7 @@
 import styles from './begin.module.css';
 import React, { useEffect, useState } from 'react';
 import qs from 'qs';
+import { useRouter } from 'next/navigation';
 
 const query = qs.stringify({
   populate: {
@@ -105,22 +106,24 @@ const Begin: React.FC = () => {
         }));
       };
     
-      const handleSubmit = (e: any) => {
-        e.preventDefault();
-      
-        // Check if required fields are filled
-        if (formData.email && formData.firstName && formData.lastName) {
-          // Assuming you have some API call or logic to handle the submitted data
-          console.log(formData);
-      
-          // Navigate to '/purchased'
-          window.location.href = '/purchased';
-        } else {
-          // Handle the case where some required fields are missing
-          // You can show an error message or highlight the missing fields
-          console.log('Please fill all the required fields');
-        }
-      };
+    // Inside your component
+    const router = useRouter();
+
+    const handleSubmit = (e: any) => {
+      e.preventDefault();
+
+      if (formData.email && formData.firstName && formData.lastName) {
+        console.log(formData);
+
+        // Store the form data in localStorage
+        localStorage.setItem('formData', JSON.stringify(formData));
+
+        // Navigate to the next page using Next.js router
+        router.push('/purchased'); // Replace with your next page's path
+      } else {
+        console.log('Please fill all the required fields');
+      }
+    };
 
     const [formpage, setFormpage] = useState<FormPageData | null>(null);
 

@@ -2,6 +2,7 @@
 import styles from './amazon.module.css';
 import React, { useEffect, useState } from 'react';
 import qs from 'qs';
+import { useRouter } from 'next/navigation';
 
 const query = qs.stringify({
   populate: {
@@ -88,14 +89,7 @@ const fetchHomepage = async (): Promise<FormPageData> => {
 };
 
 const Amazon: React.FC = () => {
-  
 
-    const [formData, setFormData] = useState({
-        email: '',
-        firstName: '',
-        lastName: '',
-        phoneNumber: ''
-      });
     
       const [amazonOrderId, setAmazonOrderId] = useState('');
       const [isOrderIdError, setIsOrderIdError] = useState(false);
@@ -103,12 +97,14 @@ const Amazon: React.FC = () => {
       // Regular expression to match the format 111-11111-111111
       const orderIdRegex = /^\d{3}-\d{5}-\d{6}$/;
   
-      const handleOrderIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleOrderIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setAmazonOrderId(value);
         setIsOrderIdError(!orderIdRegex.test(value) && value !== '');
     };
   
+    const router = useRouter();
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
     
@@ -117,9 +113,17 @@ const Amazon: React.FC = () => {
             setIsOrderIdError(true);
             return;
         }
-    
-        // If the format is correct, redirect to /experience
-        window.location.href = '/experience';
+
+        // Retrieve existing data from localStorage and update it
+        const existingData = localStorage.getItem('formData');
+        const formData = existingData ? JSON.parse(existingData) : {};
+        
+        formData.amazonOrderId = amazonOrderId;
+
+        localStorage.setItem('formData', JSON.stringify(formData));
+
+        // Redirect to the next page using Next.js router
+        router.push('/experience');
     };
 
     const [formpage, setFormpage] = useState<FormPageData | null>(null);

@@ -13,6 +13,18 @@ export interface CardCard extends Schema.Component {
   };
 }
 
+export interface ProductProduct extends Schema.Component {
+  collectionName: 'components_product_products';
+  info: {
+    displayName: 'Product';
+    icon: 'store';
+  };
+  attributes: {
+    Title: Attribute.String;
+    Image: Attribute.Media;
+  };
+}
+
 export interface QuestionQuestion extends Schema.Component {
   collectionName: 'components_question_questions';
   info: {
@@ -29,6 +41,7 @@ declare module '@strapi/types' {
   export module Shared {
     export interface Components {
       'card.card': CardCard;
+      'product.product': ProductProduct;
       'question.question': QuestionQuestion;
     }
   }
